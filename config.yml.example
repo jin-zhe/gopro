@@ -1,0 +1,4 @@
+gorpo:
+  to_gpx: ./executables/gopro2gpx
+  to_json: ./executables/gopro2json
+  gpmd_info: ./executables/gpmdinfo
