@@ -31,7 +31,7 @@ mv gpmdinfo.go gpmdinfo.go.bkup
 wget http://tailorandwayne.com/gpmdinfo.go
 ```
 
-If you're using a GoPro Hero 5 Black, open the gpmdinfo.go and uncomment the all blocks marked with "Uncomment for Gps":
+If you're using a GoPro Hero 5 Black, open the `gpmdinfo.go` and uncomment the all blocks marked with "Uncomment for Gps":
 ```go
 ///////////////////////Uncomment for Gps
 var gpsCsv = [][]string{{"Latitude","Longitude","Altitude","Speed","Speed3D","TS"}}
