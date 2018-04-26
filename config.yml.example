@@ -1,4 +1,4 @@
-gorpo:
-  to_gpx: ./executables/gopro2gpx
-  to_json: ./executables/gopro2json
-  gpmd_info: ./executables/gpmdinfo
+gopro:
+  to_gpx: ~/go/src/github.com/stilldavid/gopro-utils/bin/gopro2gpx/gopro2gpx
+  to_json: ~/go/src/github.com/stilldavid/gopro-utils/bin/gopro2json/gopro2json
+  gpmd_info: ~/go/src/github.com/stilldavid/gopro-utils/bin/gpmdinfo/gpmdinfo

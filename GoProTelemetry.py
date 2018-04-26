@@ -11,6 +11,9 @@ class GoProTelemetry(object):
 
   def __init__(self, video_path, reprocess=False, config_path='./config.yml'):
     if os.path.isfile(video_path) and video_path.endswith('.MP4'):
+      self.gopro2gpx_path = None
+      self.gopro2json_path = None
+      self.gpmdinfo_path = None
       self.load_executables(config_path)
       # Instantiate attributes
       self.video_path = os.path.abspath(video_path)
@@ -24,7 +27,10 @@ class GoProTelemetry(object):
 
   def load_executables(self, config_path):
     with open('config.yml', 'r') as cfg:
-      self.gopro_lib = yaml.load(cfg)['gopro']
+      gopro_lib = yaml.load(cfg)['gopro']
+    self.gopro2gpx_path = os.path.expanduser(gopro_lib['to_gpx'])
+    self.gopro2json_path = os.path.expanduser(gopro_lib['to_json'])
+    self.gpmdinfo_path =  os.path.expanduser(gopro_lib['gpmd_info'])
 
   def extract_telemetry(self, reprocess=False):
     # If reprocessing or telemetry binary does not yet exists
@@ -41,7 +47,7 @@ class GoProTelemetry(object):
     # If reprocessing or gpx file does not yet exists
     if reprocess or not os.path.isfile(gpx_path):
       command = [
-        self.gopro_lib['to_gpx'],
+        self.gopro2gpx_path,
         '-i', self.telemetry_path,
         '-o', gpx_path
       ]
@@ -52,7 +58,7 @@ class GoProTelemetry(object):
     # If reprocessing or json file does not yet exists
     if reprocess or not os.path.isfile(json_path):
       command = [
-        self.gopro_lib['to_json'],
+        self.gopro2json_path,
         '-i', self.telemetry_path,
         '-o', json_path
       ]
@@ -72,7 +78,7 @@ class GoProTelemetry(object):
       os.path.isfile(temp_path)):
       
       command = [
-        self.gopro_lib['gpmd_info'],
+        self.gpmdinfo_path,
         '-i', self.telemetry_path
       ]
       GoProTelemetry.call_subprocess(command)
