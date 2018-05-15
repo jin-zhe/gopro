@@ -9,7 +9,7 @@ import yaml
 
 class GoProTelemetry(object):
 
-  def __init__(self, video_path, reprocess=False, config_path='./config.yml'):
+  def __init__(self, video_path, reprocess=False, config_path='config.yml'):
     if os.path.isfile(video_path) and video_path.endswith('.MP4'):
       self.gopro2gpx_path = None
       self.gopro2json_path = None
@@ -26,6 +26,7 @@ class GoProTelemetry(object):
       raise Exception('No MP4 file at ' + video_path)
 
   def load_executables(self, config_path):
+    config_path = os.path.join(os.path.dirname(__file__), config_path)
     with open(config_path, 'r') as cfg:
       gopro_lib = yaml.load(cfg)['gopro']
     self.gopro2gpx_path = os.path.expanduser(gopro_lib['to_gpx'])
