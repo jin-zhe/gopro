@@ -78,6 +78,3 @@ cd <THIS REPOSITORY>
 cp config.yml.example config.yml
 ```
 If you have followed the instructions exactly up to this point, then there's no need to edit the config file. Else, just make sure the paths point to the correct respective executables you just compiled
-
-## Usage
-Just look at `ProcessGoProVideos.py` for a simple example on using the `GoProTelemetry.py` class
