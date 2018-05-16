@@ -110,9 +110,13 @@ GOPR0123.MP4_temp.csv
 ```
 The contents of these 7 new files are as follows:
 * `.bin`: Telemetry data in binary format. Output by `ffmpeg`
-* `.gpx`: `gpx` file for the path undertaken during the GoPro capture. Output by `gopro2gpx`
-* `.json`: Telemetry data in JSON format. Output by `gopro2json`
-* `_accl.csv`: Acceleration data along 3D axes in csv format. Output by `gpmdinfo`
-* `_gps.csv`:  GPS data in csv format. Output by `gpmdinfo`
-* `_gyro.csv`: Gyroscope data in csv format. Output by `gpmdinfo`
-* `_temp.csv`: Temperature data in csv format. Output by `gpmdinfo`
+* `.gpx`: [GPX](https://en.wikipedia.org/wiki/GPS_Exchange_Format) file for the path undertaken during the GoPro capture. Output by `gopro2gpx`
+* `.json`: Telemetry data in [JSON](https://www.json.org/) format. Output by `gopro2json`
+* `_accl.csv`: Acceleration data along 3D axes in [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format. Output by `gpmdinfo`
+  * Columns: *Milliseconds, AcclX, AcclY, AcclZ*
+* `_gps.csv`:  GPS data in [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format. Output by `gpmdinfo`
+  * Columns: *Latitude, Longitude, Altitude, Speed, Speed3D, TS*
+* `_gyro.csv`: Gyroscope data in [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format. Output by `gpmdinfo`
+  * Columns: *Milliseconds, GyroX, GyroY, GyroZ*
+* `_temp.csv`: Temperature data in [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format. Output by `gpmdinfo`
+  * Columns: *Milliseconds, Temp*
