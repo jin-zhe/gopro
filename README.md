@@ -4,7 +4,17 @@ This project is a simple Python wrapper for the [GoPro utilities](https://github
 Specifications:
 * Python 3.5
 * Ubuntu 16.04
-* Videos captured on GoPro Hero 5 black
+* Videos captured on GoPro Hero 5 black (5 is the minimum GoPro model for which GPS telemetry can be obtained)
+
+The telemetry data we can obtain is:
+* ~400 Hz 3-axis gyro readings
+* ~200 Hz 3-axis accelerometer readings
+* ~18 Hz GPS position (lat/lon/alt/spd)
+* 1 Hz GPS timestamps
+* 1 Hz GPS accuracy (cm) and fix (2d/3d)
+* 1 Hz temperature of camera
+
+For more information on the data and their labels, please refer to the original [GoPro utilities](https://github.com/stilldavid/gopro-utils) repo.
 
 ## Prerequisites
 * [FFmpeg](https://ffmpeg.org/)
@@ -78,3 +88,31 @@ cd <THIS REPOSITORY>
 cp config.yml.example config.yml
 ```
 If you have followed the instructions exactly up to this point, then there's no need to edit the config file. Else, just make sure the paths point to the correct respective executables you just compiled
+
+### Usage
+To extract the GoPro telemetries, simply import `gopro_telemetry.py` in your code and instantiate the `GoProTelemetry` class as follows:
+```py
+GoProTelemetry(video_path, reprocess=False, config_path='config.yml'):
+```
+* `video_path`: File path to the GoPro `.mp4` video
+* `reprocess`: Indicates whether or not to reprocess the telemetries of a video. Defaults to `False`
+* `config_path`: Path to the configuration Yaml file. Defaults to `config.yml`
+
+Suppose the target video file is `GOPR0123.MP4`. Running the above script will extract the video's telemetries into the same folder where it resides. I.e. the following 7 new files will be created beside `GOPR0123.MP4`:
+```
+GOPR0123.MP4.bin
+GOPR0123.MP4.gpx
+GOPR0123.MP4.json
+GOPR0123.MP4_accl.csv
+GOPR0123.MP4_gps.csv
+GOPR0123.MP4_gyro.csv
+GOPR0123.MP4_temp.csv
+```
+The contents of these 7 new files are as follows:
+`.bin`: Telemetry data in binary format. Output by `ffmpeg`
+`.gpx`: `gpx` file for the path undertaken during the GoPro capture. Output by `gopro2gpx`
+`.json`: Telemetry data in JSON format. Output by `gopro2json`
+`_accl.csv`: Acceleration data along 3D axes in csv format. Output by `gpmdinfo`
+`_gps.csv`:  GPS data in csv format. Output by `gpmdinfo`
+`_gyro.csv`: Gyroscope data in csv format. Output by `gpmdinfo`
+`_temp.csv`: Temperature data in csv format. Output by `gpmdinfo`
