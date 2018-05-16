@@ -6,7 +6,7 @@ Specifications:
 * Ubuntu 16.04
 * Videos captured on GoPro Hero 5 black (5 is the minimum GoPro model for which GPS telemetry can be obtained)
 
-The telemetry data we can obtain is:
+The telemetry data we can obtain are:
 * ~400 Hz 3-axis gyro readings
 * ~200 Hz 3-axis accelerometer readings
 * ~18 Hz GPS position (lat/lon/alt/spd)
@@ -109,10 +109,10 @@ GOPR0123.MP4_gyro.csv
 GOPR0123.MP4_temp.csv
 ```
 The contents of these 7 new files are as follows:
-`.bin`: Telemetry data in binary format. Output by `ffmpeg`
-`.gpx`: `gpx` file for the path undertaken during the GoPro capture. Output by `gopro2gpx`
-`.json`: Telemetry data in JSON format. Output by `gopro2json`
-`_accl.csv`: Acceleration data along 3D axes in csv format. Output by `gpmdinfo`
-`_gps.csv`:  GPS data in csv format. Output by `gpmdinfo`
-`_gyro.csv`: Gyroscope data in csv format. Output by `gpmdinfo`
-`_temp.csv`: Temperature data in csv format. Output by `gpmdinfo`
+* `.bin`: Telemetry data in binary format. Output by `ffmpeg`
+* `.gpx`: `gpx` file for the path undertaken during the GoPro capture. Output by `gopro2gpx`
+* `.json`: Telemetry data in JSON format. Output by `gopro2json`
+* `_accl.csv`: Acceleration data along 3D axes in csv format. Output by `gpmdinfo`
+* `_gps.csv`:  GPS data in csv format. Output by `gpmdinfo`
+* `_gyro.csv`: Gyroscope data in csv format. Output by `gpmdinfo`
+* `_temp.csv`: Temperature data in csv format. Output by `gpmdinfo`
