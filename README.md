@@ -98,7 +98,8 @@ GoProTelemetry(video_path, reprocess=False, config_path='config.yml'):
 * `reprocess`: Indicates whether or not to reprocess the telemetries of a video. Defaults to `False`
 * `config_path`: Path to the configuration Yaml file. Defaults to `config.yml`
 
-Suppose the target video file is `GOPR0123.MP4`. Running the above script will extract the video's telemetries into the same folder where it resides. I.e. the following 7 new files will be created beside `GOPR0123.MP4`:
+### Telemetry data files
+Instantiating a `GoProTelemetry` object with the given video path will extract the video's telemetries into the same folder where it resides. So suppose the target video file is `GOPR0123.MP4`, the process will create the following 7 files beside `GOPR0123.MP4`:
 ```
 GOPR0123.MP4.bin
 GOPR0123.MP4.gpx
