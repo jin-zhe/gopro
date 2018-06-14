@@ -101,4 +101,4 @@ class GoProTelemetry(object):
   def call_subprocess(command):
     c = subprocess.run(command)
     if c.returncode != 0:
-      raise subprocess.CalledProcessError(c.stderr)
+      raise subprocess.CalledProcessError(c.returncode, ' '.join(command))
