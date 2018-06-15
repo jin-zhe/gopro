@@ -42,7 +42,7 @@ class GoProTelemetry(object):
   def extract_all(self, reprocess=False):
     self.extract_gpx(reprocess)
     self.extract_json(reprocess)
-    # self.extract_metadata(reprocess)
+    self.extract_metadata(reprocess)
 
   def extract_gpx(self, reprocess=False):
     gpx_path = os.path.join(self.video_dir, self.base_name + '.gpx')
