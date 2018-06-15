@@ -3,6 +3,8 @@ import os.path
 import shutil
 import errno
 import yaml
+import json
+import re
 
 class GoProTelemetry(object):
 
@@ -33,12 +35,14 @@ class GoProTelemetry(object):
   def extract_telemetry(self, reprocess=False):
     # If reprocessing or telemetry binary does not yet exists
     if reprocess or not os.path.isfile(self.telemetry_path):
-      GoProTelemetry.call_subprocess(self.telemetry_command())
+      m = self.get_telemetry_stream()
+      command = self.telemetry_command(m)
+      GoProTelemetry.call_subprocess(command)
 
   def extract_all(self, reprocess=False):
     self.extract_gpx(reprocess)
     self.extract_json(reprocess)
-    self.extract_metadata(reprocess)
+    # self.extract_metadata(reprocess)
 
   def extract_gpx(self, reprocess=False):
     gpx_path = os.path.join(self.video_dir, self.base_name + '.gpx')
@@ -87,10 +91,22 @@ class GoProTelemetry(object):
       shutil.move('./accl.csv', accl_path)
       shutil.move('./temp.csv', temp_path)
 
-  def telemetry_command(self, m='3'):
+  def get_telemetry_stream(self):
+    command = ['ffprobe', '-i', self.video_path, '-v', 'quiet', '-print_format', 'json', '-show_format', '-show_streams', '-hide_banner']
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    if err:
+      print(err)
+      return None
+    gopro_streams = json.loads(out.decode('utf-8'))['streams']
+    for stream in gopro_streams:
+      if stream['codec_tag_string'] == 'gpmd':
+        return stream['index']
+
+  def telemetry_command(self, m):
     return [
       'ffmpeg', '-y', '-i', self.video_path, '-codec', 'copy', '-map',
-      '0:' + m + ':handler_name:" GoPro MET"', '-f', 'rawvideo',
+      '0:' + str(m) + ':handler_name:" GoPro MET"', '-f', 'rawvideo',
       self.telemetry_path
     ]
 
