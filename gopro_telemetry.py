@@ -13,7 +13,7 @@ class GoProTelemetry(object):
     GoProTelemetry.ensure_valid_path(video_path)
     self.ffprobe_streams = GoProTelemetry.get_ffprobe_streams(video_path)
     GoProTelemetry.ensure_valid_gopro_video(video_path, self.ffprobe_streams)
-
+    self.reprocess = reprocess
     self.gopro2gpx_path = None
     self.gopro2json_path = None
     self.gpmdinfo_path = None
@@ -28,7 +28,7 @@ class GoProTelemetry(object):
     if prepend_filename_with_serial:
       self.process_prepend_filename_with_serial()
 
-    self.extract_telemetry(reprocess)
+    self.extract_telemetry()
 
   def get_basename(self):
     name_check = os.path.splitext(self.filename)[0]
@@ -40,8 +40,9 @@ class GoProTelemetry(object):
       raise Exception('Unknown filename format!')
 
   def process_prepend_filename_with_serial(self):
-    self.camera_serial = self.get_camera_serial()
-    if self.camera_serial not in self.filename:
+    self.camera_serial = self.filename_contains_serial()
+    if not self.camera_serial:
+      self.camera_serial = self.retrieve_camera_serial()
       # Derive new filename and relevant paths
       new_filename = '{}_{}'.format(self.camera_serial, self.filename)
       new_video_path = self.video_path.replace(self.filename, new_filename)
@@ -61,22 +62,22 @@ class GoProTelemetry(object):
     self.gopro2json_path = os.path.expanduser(gopro_lib['to_json'])
     self.gpmdinfo_path =  os.path.expanduser(gopro_lib['gpmd_info'])
 
-  def extract_telemetry(self, reprocess=False):
+  def extract_telemetry(self):
     # If reprocessing or telemetry binary does not yet exists
-    if reprocess or not os.path.isfile(self.telemetry_path):
+    if self.reprocess or not os.path.isfile(self.telemetry_path):
       stream_index = self.get_stream_index('gpmd')
       command = GoProTelemetry.ffmpeg_command(self.video_path, stream_index, self.telemetry_path)
       GoProTelemetry.call_subprocess(command)
 
-  def extract_all(self, reprocess=False):
-    self.extract_gpx(reprocess)
-    self.extract_json(reprocess)
-    self.extract_metadata(reprocess)
+  def extract_all(self):
+    self.extract_gpx()
+    self.extract_json()
+    self.extract_metadata()
 
-  def extract_gpx(self, reprocess=False):
+  def extract_gpx(self):
     gpx_path = os.path.join(self.video_dir, self.filename + '.gpx')
     # If reprocessing or gpx file does not yet exists
-    if reprocess or not os.path.isfile(gpx_path):
+    if self.reprocess or not os.path.isfile(gpx_path):
       command = [
         self.gopro2gpx_path,
         '-i', self.telemetry_path,
@@ -84,10 +85,10 @@ class GoProTelemetry(object):
       ]
       GoProTelemetry.call_subprocess(command)
 
-  def extract_json(self, reprocess=False):
+  def extract_json(self):
     json_path = os.path.join(self.video_dir, self.filename + '.json')
     # If reprocessing or json file does not yet exists
-    if reprocess or not os.path.isfile(json_path):
+    if self.reprocess or not os.path.isfile(json_path):
       command = [
         self.gopro2json_path,
         '-i', self.telemetry_path,
@@ -95,14 +96,14 @@ class GoProTelemetry(object):
       ]
       GoProTelemetry.call_subprocess(command)
 
-  def extract_metadata(self, reprocess=False):
+  def extract_metadata(self):
     gps_path = os.path.join(self.video_dir, self.filename + '_gps.csv')
     gyro_path = os.path.join(self.video_dir, self.filename + '_gyro.csv')
     accl_path = os.path.join(self.video_dir, self.filename + '_accl.csv')
     temp_path = os.path.join(self.video_dir, self.filename + '_temp.csv')
     
     # If reprocessing or none of the metadata files yet exists
-    if reprocess or not (
+    if self.reprocess or not (
 
       os.path.isfile(gps_path) and
       os.path.isfile(gyro_path) and
@@ -128,7 +129,26 @@ class GoProTelemetry(object):
   def get_firmware_version(self):
     return self.ffprobe_streams['format']['tags']['firmware']
 
-  def get_camera_serial(self):
+  def filename_contains_serial(self):
+    # See https://gopro.com/help/articles/How_To/How-to-Find-Your-GoPro-Serial-Number
+    serial_regex = [
+      (r'C33.{11}'),  # GoPro HERO (2018).  14 char beginning with "C33"
+      (r'C322.{10}'), # HERO6 Black.        14 char beginning with "C322"
+      (r'C32.{11}'),  # HERO5 Session.      14 char beginning with "C32"
+      (r'C31.{11}'),  # HERO5 Black, HERO4, HERO Session, HERO4 Session, HERO+ LCD, HERO+, HERO. 14 char beginning with "C31"
+      (r'H3.{13}'),   # HERO3+.             15-char beginning with "H3"
+      (r'HD3.{12}'),  # HERO3.              15 char beginning with "HD3"
+      (r'H2.{12}'),   # HD HERO2.           14 char beginning with "H2"
+      (r'HD2.{11}'),  # HD HERO 960.        14 char beginning with "HD2"
+      (r'HD1.{10}')   # HD HERO (Original). 13 char beginning with "HD1"
+    ]
+    for regex in serial_regex:
+      check = re.search(regex, self.filename) 
+      if check:
+        return check.group(0)
+    return None
+
+  def retrieve_camera_serial(self):
     stream_index = self.get_stream_index('fdsc')
     temp_output_path = '{}_fdsc.bin'.format(self.video_path)
     command = GoProTelemetry.ffmpeg_command(self.video_path, stream_index, temp_output_path)
