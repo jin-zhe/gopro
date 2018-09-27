@@ -9,7 +9,7 @@ import os
 
 class GoProTelemetry(object):
 
-  def __init__(self, video_path, reprocess=False, prepend_filename_with_serial=False, config_path='config.yml'):
+  def __init__(self, video_path, reprocess=False, prepend_filename_with_serial=False, append_filename_with_timestamp=False, config_path='config.yml'):
     GoProTelemetry.ensure_valid_path(video_path)
     self.ffprobe_streams = GoProTelemetry.get_ffprobe_streams(video_path)
     GoProTelemetry.ensure_valid_gopro_video(video_path, self.ffprobe_streams)
@@ -21,23 +21,24 @@ class GoProTelemetry(object):
     # Instantiate attributes
     self.video_dir = os.path.abspath(os.path.join(video_path, os.pardir))
     self.filename = os.path.basename(video_path)
-    self.basename = self.get_basename()
     self.video_path = os.path.abspath(video_path)
+    self.basename = self.get_basename()
     self.telemetry_path = '{}.bin'.format(video_path)
 
     if prepend_filename_with_serial:
       self.process_prepend_filename_with_serial()
 
+    if append_filename_with_timestamp:
+      self.append_filename_with_timestamp()
+
     self.extract_telemetry()
 
   def get_basename(self):
-    name_check = os.path.splitext(self.filename)[0]
-    if not name_check.count('_'):
-      return name_check
-    elif name_check.count('_') == 1:
-      return name_check.split('_')[1]
+    search = re.search(r'G[HXOP\d][AP\d][AR\d]\d{4}', self.filename)
+    if search:
+      return search.group(0)
     else:
-      raise Exception('Unknown filename format!')
+      raise Exception('{}: Unknown filename format!'.format(self.video_path))
 
   def process_prepend_filename_with_serial(self):
     self.camera_serial = self.filename_contains_serial()
@@ -53,6 +54,21 @@ class GoProTelemetry(object):
       os.rename(self.video_path, new_video_path)
       self.video_path = new_video_path
       self.telemetry_path = new_telemetry_path
+
+  def append_filename_with_timestamp(self):
+    self.creation_time = self.get_creation_time()
+    timestamp = self.creation_time.strftime("%Y-%m-%dT%H%M%S")
+    if timestamp not in self.filename:
+      # Derive new filename and relevant paths
+      new_filename = self.filename.replace('.MP4', '_{}.MP4'.format(timestamp))
+      new_video_path = self.video_path.replace(self.filename, new_filename)
+      new_telemetry_path = self.telemetry_path.replace(self.filename, new_filename)
+
+      # Update with new values
+      self.filename = new_filename
+      os.rename(self.video_path, new_video_path)
+      self.video_path = new_video_path
+      self.telemetry_path = new_telemetry_path      
 
   def load_executables(self, config_path):
     config_path = os.path.join(os.path.dirname(__file__), config_path)
